@@ -63,29 +63,43 @@ class DocumentViewSet(viewsets.ModelViewSet):
    pagination_class = PageNumberPagination
    filter_backends = [filters.SearchFilter, filter.DjangoFilterBackend]
    search_fields = ['file_name', 'uploaded_date']
-   permission_classes = [IsAuthenticatedOrReadOnly]
+   permission_classes = [IsAdminOnly|IsManagerOnly|IsStandardUserOnly|ViewerOnly]
    
 
 
 class MetaDataViewSet(viewsets.ModelViewSet):
    queryset = MetaData.objects.all()
    serializer_class = MetaDataSerializer
-   filter_backends = [filters.SearchFilter]
-   search_fields = ['keywords']
+   pagination_class = PageNumberPagination
+   filter_backends = [filters.SearchFilter, filter.DjangoFilterBackend]
+   search_fields = ['keywords', 'tags']
+   permission_classes= [IsAdminOnly|IsManagerOnly|IsStandardUserOnly|ViewerOnly]
+   
    
 class AuditLogsViewSet(viewsets.ModelViewSet):
    queryset = AuditLogs.objects.all()
    serializer_class = AuditLogsSerializer
+   pagination_class = PageNumberPagination
+   filter_backends = [filters.SearchFilter, filter.DjangoFilterBackend]
+   search_fields = ['action', 'action_date']
+   permission_classes = [IsAdminOnly|IsManagerOnly]
    
    
    
 class ReportRequestViewSet(viewsets.ModelViewSet):
    queryset = ReportRequest.objects.all()
    serializer_class= ReportRequestSerializer
+   pagination_class = PageNumberPagination
+   filter_backends = [filters.SearchFilter, filter.DjangoFilterBackend]
+   search_fields = ['report_type', 'recurring_interval']
+   permission_classes = [IsAdminOnly|IsManagerOnly]
    
    
    
 class BackupViewSet(viewsets.ModelViewSet):
    queryset = Backup.objects.all()
    serializer_class = BackupSerializer
+   pagination_class = PageNumberPagination
+   filter_backends = [filters.SearchFilter, filter.DjangoFilterBackend]
+   search_fields = ['backup_name', 'status']
 

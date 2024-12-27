@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     "debug_toolbar",
     'django_filters',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -160,4 +161,11 @@ INTERNAL_IPS = [
 REST_FRAMEWORK = {
     # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
     'PAGE_SIZE': 10
+}
+
+
+SWAGGER_SETTINGS = {
+
+    'VALIDATOR_URL': 'http://localhost:8189',
+   
 }
