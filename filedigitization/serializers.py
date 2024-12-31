@@ -50,5 +50,5 @@ class ReportRequestSerializer(serializers.ModelSerializer):
 class BackupSerializer(serializers.ModelSerializer):
     
     class Meta:
-        models = Backup
+        model = Backup
         fields = '__all__'

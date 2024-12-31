@@ -31,11 +31,12 @@ class Document(models.Model):
     file_size = models.PositiveIntegerField()
     status = models.CharField(max_length = 100, choices=STATUS_CHOICES)
     uploaded_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    accessible_users = models.ManyToManyField(User, related_name="document_access")
     uploaded_date= models.DateTimeField(auto_now_add=True)
     
     
     def __str__(self):
-        return f"file name is {self.file_name}"    
+        return f"{self.file_name}"    
         
 class MetaData(models.Model):
     CATEGORY_CHOICE=(
@@ -69,7 +70,7 @@ class AuditLogs(models.Model):
         ('upload', 'Upload')
     )
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null = True)
-    document = models.ForeignKey(Document, on_delete=models.CASCADE)
+    document = models.ForeignKey(Document, on_delete=models.SET_NULL, null = True)
     action = models.CharField(max_length=100, choices=ACTION_DETAILS)
     action_date = models.DateTimeField(auto_now_add=True)
     details = models.TextField(blank=True)

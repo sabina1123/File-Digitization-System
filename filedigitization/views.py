@@ -12,6 +12,7 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework import filters
 from .permissions import *
 from django_filters import rest_framework as filter
+
 # Create your views here.
 
 class RegistrationAPIView(APIView):
@@ -31,7 +32,7 @@ class LoginAPIView(APIView):
          raise AuthenticationFailed('Both username and password are required')
       user = authenticate(request, username=username, password=password)
       if user is not None:
-         login(request, user)
+         # man
          token, created = Token.objects.get_or_create(user=user)
          return Response({'token': token.key, 'username': user.username, 'role': user.role})
       raise AuthenticationFailed('Invalid username or password')
@@ -102,4 +103,5 @@ class BackupViewSet(viewsets.ModelViewSet):
    pagination_class = PageNumberPagination
    filter_backends = [filters.SearchFilter, filter.DjangoFilterBackend]
    search_fields = ['backup_name', 'status']
+   permission_classes = [IsAdminOnly|IsManagerOnly]
 
