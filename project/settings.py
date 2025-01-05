@@ -136,7 +136,7 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'filedigitization.User'
+
 
 
 REST_FRAMEWORK = {
@@ -145,6 +145,7 @@ REST_FRAMEWORK = {
     ],
     'DATETIME_FORMAT': "%Y-%m-%d %I:%M %p",
     'TIME_FORMAT': "%I:%M %p",
+    'PAGE_SIZE': 10
 }
 
 MEDIA_URL = '/media/' 
@@ -159,10 +160,7 @@ INTERNAL_IPS = [
     # ...
 ]
 
-REST_FRAMEWORK = {
-    # 'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
-    'PAGE_SIZE': 10
-}
+AUTH_USER_MODEL = 'filedigitization.User'
 
 
 # SWAGGER_SETTINGS = {
@@ -178,4 +176,5 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
 EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+# EMAIL_USE_SSL = False
 

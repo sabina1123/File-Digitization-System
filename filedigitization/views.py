@@ -12,6 +12,9 @@ from rest_framework.pagination import PageNumberPagination
 from rest_framework import filters
 from .permissions import *
 from django_filters import rest_framework as filter
+from rest_framework.decorators import action
+from django.core.mail import send_mail
+
 
 # Create your views here.
 
@@ -32,7 +35,7 @@ class LoginAPIView(APIView):
          raise AuthenticationFailed('Both username and password are required')
       user = authenticate(request, username=username, password=password)
       if user is not None:
-         # man
+         login(request, user)
          token, created = Token.objects.get_or_create(user=user)
          return Response({'token': token.key, 'username': user.username, 'role': user.role})
       raise AuthenticationFailed('Invalid username or password')
@@ -58,7 +61,9 @@ class LogoutAPIView(APIView):
      
 
 
+
 class DocumentViewSet(viewsets.ModelViewSet):
+   
    queryset = Document.objects.all()
    serializer_class = DocumentSerializer
    pagination_class = PageNumberPagination
@@ -66,6 +71,78 @@ class DocumentViewSet(viewsets.ModelViewSet):
    search_fields = ['file_name', 'uploaded_date']
    permission_classes = [IsAdminOnly|IsManagerOnly|IsStandardUserOnly|ViewerOnly]
    
+   # @action(detail=True, methods=['post'], url_path='approve')
+   # def approve_document(self, request, pk=None):
+   #      document = self.get_object()
+        
+   #      if document.status != 'pending':
+   #          return Response({"detail": "Document has already been approved or rejected."}, status=status.HTTP_400_BAD_REQUEST)
+        
+   #      # Set the document status to 'approved'
+   #      document.status = 'approved'
+   #      document.save()
+
+   #      # Send email to the uploader
+   #      send_mail(
+   #          subject="Document Approved",
+   #          message=f"Document {document.file_name} has been approved.",
+   #          from_email="hello@fds.com",
+   #          recipient_list=[document.uploaded_by.email],  # Notify uploader
+   #          fail_silently=False,
+   #      )
+
+   #      return Response({"detail": "Document approved successfully."}, status=status.HTTP_200_OK)
+
+   #  # Custom action to reject a document
+   # @action(detail=True, methods=['post'], url_path='reject')
+   # def reject_document(self, request, pk=None):
+   #      document = self.get_object()
+
+   #      if document.status != 'pending':
+   #          return Response({"detail": "Document has already been approved or rejected."}, status=status.HTTP_400_BAD_REQUEST)
+        
+   #      # Set the document status to 'rejected'
+   #      document.status = 'rejected'
+   #      document.save()
+
+   #      # Send email to the uploader
+   #      send_mail(
+   #          subject="Document Rejected",
+   #          message=f"Document {document.file_name} has been rejected.",
+   #          from_email="hello@fds.com",
+   #          recipient_list=[document.uploaded_by.email],  # Notify uploader
+   #          fail_silently=False,
+   #      )
+
+   #      return Response({"detail": "Document rejected successfully."}, status=status.HTTP_200_OK)
+
+   #  # Custom action for submitting document for approval (change status to pending)
+   # @action(detail=True, methods=['post'], url_path='submit-approval-request')
+   # def submit_for_approval(self, request, pk=None):
+   #      document = self.get_object()
+        
+   #      # Set the document status to 'pending' for approval
+   #      document.status = 'pending'
+   #      document.save()
+        
+   #      admin_users = User.objects.filter(role='admin')
+   #      print(admin_users)
+        
+   #      # Collect the emails of admin users
+   #      recipient_list = [user.email for user in admin_users if user.email]
+
+   #      # Send email to admin users about the document submission
+   #      send_mail(
+   #          subject="Document Submitted for Approval",
+   #          message=f"Document {document.file_name} has been submitted for approval.",
+   #          from_email="hello@fds.com",
+   #          recipient_list=recipient_list,
+   #          fail_silently=False,
+   #      )
+
+   #      return Response({"detail": "Document submitted for approval."}, status=status.HTTP_200_OK)
+
+    
 
 
 class MetaDataViewSet(viewsets.ModelViewSet):

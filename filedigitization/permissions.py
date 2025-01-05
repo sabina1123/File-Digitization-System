@@ -1,6 +1,6 @@
-from rest_framework. permissions import BasePermission
+from rest_framework. permissions import BasePermission, SAFE_METHODS
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
-from rest_framework import permissions
+
 
 # class IsAuthenticatedOrReadOnly(BasePermission):
      
@@ -15,7 +15,7 @@ class IsAdminOnly(BasePermission):
 
 class IsManagerOrReadOnly(BasePermission):
     def has_permission(self, request, view):
-      if request.method in  permissions.SAFE_METHODS:
+      if request.method in  SAFE_METHODS:
          return True
       return request.user.is_authenticated and request.user.role == 'manager'
     
@@ -30,7 +30,7 @@ class IsManagerOnly(BasePermission):
     
 class IsStandardUserOrReadOnly(BasePermission):
     def has_permission(self, request, view):
-        if request.method in permissions.SAFE_METHODS:
+        if request.method in SAFE_METHODS:
             return True
         return request.user.is_authenticated and request.user.role == "standaerd_user"
     
@@ -49,7 +49,7 @@ class ViewerOnly(BasePermission):
         if role != "viewer":
             return False
         
-        if request.method in permissions.SAFE_METHODS:
+        if request.method in SAFE_METHODS:
             return True
         
         if request.method == "POST" and getattr(view, "allow_comments", False):

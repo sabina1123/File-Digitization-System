@@ -29,6 +29,15 @@ class UserAdmin(UserAdmin):
 @admin.register(Document)
 class DocumentAdmin(admin.ModelAdmin):
     list_display=['id', 'file', 'file_name', 'file_type', 'file_size', 'status', 'uploaded_by', 'uploaded_date' ]
+    def accessible_users_list(self, obj):
+        
+        return ", ".join([user.username for user in obj.accessible_users.all()])
+    
+   
+    accessible_users_list.short_description = 'Accessible Users'
+    
+  
+    list_display.append('accessible_users_list')
     
     
 
