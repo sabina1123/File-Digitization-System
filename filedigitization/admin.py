@@ -63,3 +63,15 @@ class ReportRequestAdmin(admin.ModelAdmin):
 @admin.register(Backup)
 class BackupAdmin(admin.ModelAdmin):
    list_display=['id', 'backup_name', 'backup_file', 'status', 'created_at', 'updated_at', 'restored_at', 'requested_by']
+   
+   
+@admin.register(Notification)
+class NotificationAdmin(admin.ModelAdmin):
+   list_display= ['id', 'title', 'message', 'notification_type', 'notification_token', 'related_file', 'is_read', 'created_at']
+   
+
+@admin.register(NotificationToken)
+class NotificationTokenAdmin(admin.ModelAdmin):
+   list_display = ['id', 'user', 'token', 'device_type', 'created_at', 'updated_at', 'is_active']
+   
+   

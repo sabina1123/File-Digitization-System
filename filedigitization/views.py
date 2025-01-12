@@ -14,6 +14,9 @@ from .permissions import *
 from django_filters import rest_framework as filter
 from rest_framework.decorators import action
 from django.core.mail import send_mail
+from fcm_django.models import FCMDevice
+from firebase_admin.messaging import Message, Notification as FCMNotification
+
 
 
 # Create your views here.
@@ -70,78 +73,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
    filter_backends = [filters.SearchFilter, filter.DjangoFilterBackend]
    search_fields = ['file_name', 'uploaded_date']
    permission_classes = [IsAdminOnly|IsManagerOnly|IsStandardUserOnly|ViewerOnly]
-   
-   # @action(detail=True, methods=['post'], url_path='approve')
-   # def approve_document(self, request, pk=None):
-   #      document = self.get_object()
-        
-   #      if document.status != 'pending':
-   #          return Response({"detail": "Document has already been approved or rejected."}, status=status.HTTP_400_BAD_REQUEST)
-        
-   #      # Set the document status to 'approved'
-   #      document.status = 'approved'
-   #      document.save()
-
-   #      # Send email to the uploader
-   #      send_mail(
-   #          subject="Document Approved",
-   #          message=f"Document {document.file_name} has been approved.",
-   #          from_email="hello@fds.com",
-   #          recipient_list=[document.uploaded_by.email],  # Notify uploader
-   #          fail_silently=False,
-   #      )
-
-   #      return Response({"detail": "Document approved successfully."}, status=status.HTTP_200_OK)
-
-   #  # Custom action to reject a document
-   # @action(detail=True, methods=['post'], url_path='reject')
-   # def reject_document(self, request, pk=None):
-   #      document = self.get_object()
-
-   #      if document.status != 'pending':
-   #          return Response({"detail": "Document has already been approved or rejected."}, status=status.HTTP_400_BAD_REQUEST)
-        
-   #      # Set the document status to 'rejected'
-   #      document.status = 'rejected'
-   #      document.save()
-
-   #      # Send email to the uploader
-   #      send_mail(
-   #          subject="Document Rejected",
-   #          message=f"Document {document.file_name} has been rejected.",
-   #          from_email="hello@fds.com",
-   #          recipient_list=[document.uploaded_by.email],  # Notify uploader
-   #          fail_silently=False,
-   #      )
-
-   #      return Response({"detail": "Document rejected successfully."}, status=status.HTTP_200_OK)
-
-   #  # Custom action for submitting document for approval (change status to pending)
-   # @action(detail=True, methods=['post'], url_path='submit-approval-request')
-   # def submit_for_approval(self, request, pk=None):
-   #      document = self.get_object()
-        
-   #      # Set the document status to 'pending' for approval
-   #      document.status = 'pending'
-   #      document.save()
-        
-   #      admin_users = User.objects.filter(role='admin')
-   #      print(admin_users)
-        
-   #      # Collect the emails of admin users
-   #      recipient_list = [user.email for user in admin_users if user.email]
-
-   #      # Send email to admin users about the document submission
-   #      send_mail(
-   #          subject="Document Submitted for Approval",
-   #          message=f"Document {document.file_name} has been submitted for approval.",
-   #          from_email="hello@fds.com",
-   #          recipient_list=recipient_list,
-   #          fail_silently=False,
-   #      )
-
-   #      return Response({"detail": "Document submitted for approval."}, status=status.HTTP_200_OK)
-
     
 
 
@@ -181,4 +112,65 @@ class BackupViewSet(viewsets.ModelViewSet):
    filter_backends = [filters.SearchFilter, filter.DjangoFilterBackend]
    search_fields = ['backup_name', 'status']
    permission_classes = [IsAdminOnly|IsManagerOnly]
+   
+   
 
+class NotificationViewSet(viewsets.ModelViewSet):
+   queryset = Notification.objects.all()
+   serializer_class = NotificationSerializer
+   def perform_create(self, serializer):
+        # Save the notification instance
+      notification = serializer.save()
+
+        # Prepare the FCM message
+      message = Message(
+         notification=FCMNotification(
+         title=notification.title,
+         body=notification.message,
+            ),
+            # Optionally, you can include data payload here
+         data={
+                'notification_type': notification.notification_type,
+                'notification_id': str(notification.id),  # Include ID if needed
+            },
+        )
+
+        # Send the message to all active devices associated with users
+      devices = FCMDevice.objects.filter(user__notificationtoken__is_active=True)
+      if devices.exists():
+         devices.send_message(message)
+
+
+class NotificationTokenAPIView(APIView):
+   def post(self, request):
+      serializer = NotificationTokenSerializer(data= request.data)
+      if serializer.is_valid():
+         serializer.save()
+         return Response({"status_code": 201, "message": "Notification token created"}, status=status.HTTP_201_CREATED)
+      return Response({"status_code": 400, "message": "There are errors in the entries made."}, status=status.HTTP_400_BAD_REQUEST)
+      
+# class NotificationTokenViewSet(viewsets.ModelViewSet):
+#    queryset = NotificationToken.objects.all()
+#    serializer_class = NotificationTokenSerializer  
+
+
+class RegisterDeviceView(APIView):
+    def post(self, request):
+        registration_id = request.data.get('registration_id')  # Get the FCM token from the request
+        user = request.user  # Assuming the user is authenticated
+
+        if not registration_id:
+            return Response({"error": "Registration ID is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Create or update the FCMDevice instance
+        device, created = FCMDevice.objects.get_or_create(
+            registration_id=registration_id,
+            user=user,
+            defaults={'active': True, 'type': request.data.get('device_type', 'unknown')}
+        )
+
+        if not created:
+            device.active = True  # Ensure the device is active
+            device.save()
+
+        return Response({"status": "Device registered successfully"}, status=status.HTTP_201_CREATED)

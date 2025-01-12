@@ -126,6 +126,38 @@ class Backup(models.Model):
     def __str__(self):
         return f"Backup: {self.backup_name} ({self.status})"
     
+    
+    
+
+    
+class NotificationToken(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    token = models.CharField(max_length=150, unique=True)
+    device_type = models.CharField(max_length=50)  # e.g., 'android', 'ios', 'web'
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    is_active = models.BooleanField(default=True)
+    
+    class Meta:
+       unique_together = ('user', 'token')
+
+    def __str__(self):
+        return f"{self.user.username} - {self.token}"
+    
+    
+    
+class Notification(models.Model):
+    title = models.CharField(max_length=150, null = True)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=50, null = True)  # e.g., 'info', 'warning', 'error'
+    notification_token = models.ForeignKey(NotificationToken, on_delete=models.CASCADE, null = True)
+    related_file = models.FileField(upload_to='notifications/', null=True, blank=True)  # Optional file attachment
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title   
+    
 
     
 

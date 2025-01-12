@@ -14,6 +14,10 @@ from pathlib import Path
 
 import os
 
+import json
+
+
+
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -33,6 +37,9 @@ DEBUG = os.getenv('DEBUG')
 
 ALLOWED_HOSTS = []
 
+import firebase_admin
+from firebase_admin import credentials, initialize_app
+
 
 # Application definition
 
@@ -49,6 +56,7 @@ INSTALLED_APPS = [
     "debug_toolbar",
     'django_filters',
     'drf_yasg',
+    'fcm_django',
     
 ]
 
@@ -176,5 +184,14 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS')
 EMAIL_PORT = os.getenv('EMAIL_PORT')
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-# EMAIL_USE_SSL = False
+
+
+FIREBASE_ADMIN_CREDENTIAL = os.path.join(BASE_DIR, 'config/serviceAccountKey.json')
+
+cred = credentials.Certificate(FIREBASE_ADMIN_CREDENTIAL)
+initialize_app(cred)
+    
+FCM_DJANGO_SETTINGS = {
+    "FCM_SERVER_KEY": 'config/serviceAccountKey.json',  # Replace with your actual server key from Firebase console
+}
 

@@ -90,3 +90,14 @@ class BackupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Backup
         fields = '__all__'
+        
+
+class NotificationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notification
+        fields = '__all__'  # or specify fields explicitly
+
+class NotificationTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NotificationToken
+        fields = '__all__' 

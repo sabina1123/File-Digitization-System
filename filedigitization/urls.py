@@ -11,12 +11,17 @@ router.register(r'metadatas',MetaDataViewSet, basename='metadata')
 router.register(r'auditlogs', AuditLogsViewSet, basename='auditlogs')
 router.register(r'reportrequest', ReportRequestViewSet, basename = "reportrequest")
 router.register(r'backup', BackupViewSet, basename= 'backup')
+router.register(r'notifications', NotificationViewSet, basename = 'notification')
+# router.register(r'notificationtokens', NotificationTokenViewSet, basename='notificationtoken')
+
 
 
 urlpatterns = router.urls+[
    path('register/', RegistrationAPIView.as_view(), name='user-registration'),
    path('login/', LoginAPIView.as_view(), name='user-login'),
    path('logout/', LogoutAPIView.as_view(), name='user-logout'),
+   path('notificationtoken/', NotificationTokenAPIView.as_view(), name='notification_token'),
+   path('registerdevice', RegisterDeviceView.as_view(), name = 'registerdevice')
    
 ]
 if settings.DEBUG:  
